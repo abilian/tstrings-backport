@@ -101,6 +101,9 @@ def t(template_string: str) -> Template:
                 expr_for_eval = expr_with_possible_ws[:eq_index]
                 # Strip all whitespace from both ends for evaluation
                 expr_for_eval = expr_for_eval.strip()
+                # Remove any trailing '=' if present (shouldn't be, but for safety)
+                if expr_for_eval.endswith('='):
+                    expr_for_eval = expr_for_eval[:-1].rstrip()
             else:
                 expr_for_static = expr_with_possible_ws + '='
                 expr_for_eval = expr_with_possible_ws.strip()
