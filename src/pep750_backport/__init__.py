@@ -98,14 +98,9 @@ def t(template_string: str) -> Template:
             if eq_index != -1:
                 expr_for_static = expr_with_possible_ws[:eq_index+1]
                 # Remove trailing whitespace and the '=' for evaluation
-                expr_for_eval = expr_with_possible_ws[:eq_index].rstrip()
-                # Remove any trailing whitespace from the expression for evaluation
-                expr_for_eval = expr_for_eval.rstrip()
-                # Remove any leading whitespace from the expression for evaluation
-                expr_for_eval = expr_for_eval.lstrip()
-                # Remove any trailing '=' from the expression for evaluation (if present)
-                if expr_for_eval.endswith('='):
-                    expr_for_eval = expr_for_eval[:-1].rstrip()
+                expr_for_eval = expr_with_possible_ws[:eq_index]
+                # Strip all whitespace from both ends for evaluation
+                expr_for_eval = expr_for_eval.strip()
             else:
                 expr_for_static = expr_with_possible_ws + '='
                 expr_for_eval = expr_with_possible_ws.strip()
