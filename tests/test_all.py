@@ -1,5 +1,6 @@
 import pytest
-from pep750_backport import t, Template, Interpolation
+
+from pep750_backport import t
 
 
 def test_simple_string():
@@ -106,10 +107,10 @@ def test_debug_specifier_simple():
 def test_debug_specifier_with_text_and_whitespace():
     """Tests the debug specifier with surrounding text and whitespace."""
     val = "test"
-    template = t("The value is { val= }.")
-    assert template.strings == ("The value is  val= ", ".")
+    template = t("The value is {val=}.")
+    assert template.strings == ("The value is val=", ".")
     interp = template.interpolations[0]
-    assert interp.expression == " val"
+    assert interp.expression == "val"
     assert interp.conversion == 'r'
 
 

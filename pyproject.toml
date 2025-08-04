@@ -19,5 +19,6 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "aider-chat>=0.85.2",
+    "coverage>=7.10.2",
     "pytest>=8.4.1",
 ]
