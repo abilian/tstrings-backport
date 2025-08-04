@@ -59,13 +59,13 @@ tpl = t("""
 
 ## Development & Testing
 
-- Run the test suite with:
+Run the test suite with:
 
-    ```sh
-    nox
-    ```
+```sh
+nox
+```
 
-- See `tests/test_all.py` for coverage of all supported features.
+See `tests/test_all.py` for coverage of all supported features.
 
 ## How to help
 
