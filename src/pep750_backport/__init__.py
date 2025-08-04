@@ -97,13 +97,21 @@ def t(template_string: str) -> Template:
             eq_index = expr_with_possible_ws.rfind('=')
             if eq_index != -1:
                 expr_for_static = expr_with_possible_ws[:eq_index+1]
+                # Remove trailing whitespace and the '=' for evaluation
                 expr_for_eval = expr_with_possible_ws[:eq_index].rstrip()
+                # Remove any trailing whitespace from the expression for evaluation
+                expr_for_eval = expr_for_eval.rstrip()
             else:
                 expr_for_static = expr_with_possible_ws + '='
                 expr_for_eval = expr_with_possible_ws
 
             # Prepend 'expression=' (with whitespace) to the *current* static string.
             strings[-1] += expr_for_static
+
+            # For debug specifier, strip trailing '=' and whitespace for evaluation
+            expr_for_eval = expr_for_eval.rstrip()
+            # If there's any leading whitespace, also strip it for evaluation
+            expr_for_eval = expr_for_eval.lstrip()
 
             if groups['conversion']:
                 raise SyntaxError(f"f-string: cannot specify both conversion and '='")
