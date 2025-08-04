@@ -38,6 +38,10 @@ The returned object is a `Template` with `.strings` and `.interpolations` attrib
 from tstrings import t
 
 name = ""
+value = 1
+num = 3.1415
+obj = {}
+data = [1, 2, 3]
 
 # Simple
 tpl = t("Hello, {name}!")
