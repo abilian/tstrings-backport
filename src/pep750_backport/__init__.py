@@ -1,22 +1,26 @@
 import re
 import sys
 from dataclasses import dataclass
-from typing import Literal, Tuple, Sequence, Union, Optional
+from typing import Literal, Tuple, Optional
 
-# Regex to parse an f-string-like interpolation.
+# Regex to find and parse an f-string-like interpolation.
 # It captures:
 # 1. The main expression.
-# 2. A debug specifier (=).
-# 3. A conversion specifier (!r, !s, or !a).
-# 4. A format specifier (:...).
+# 2. An optional debug specifier (=).
+# 3. An optional conversion specifier (!r, !s, or !a).
+# 4. An optional format specifier (:...).
 INTERPOLATION_RE = re.compile(r"""
     \{
+        # The core expression, non-greedy
         (?P<expression>.+?)
+        # Optional debug specifier
         (?P<debug>=)?
+        # Optional conversion, one of !r, !s, or !a
         (?P<conversion>![rsa])?
+        # Optional format spec, starting with a colon
         (?P<format_spec>:.+)?
-    \}
-""", re.VERBOSE)
+    }
+""", re.VERBOSE | re.DOTALL)
 
 
 @dataclass(frozen=True)
@@ -41,7 +45,7 @@ class Template:
     interpolations: Tuple[Interpolation, ...]
 
 
-def t(f_string: str) -> Template:
+def t(template_string: str) -> Template:
     """
     Emulates a PEP 750 t-string literal for Python < 3.14.
 
@@ -50,66 +54,61 @@ def t(f_string: str) -> Template:
     scope.
 
     Args:
-        f_string: The string to parse, e.g., "Hello {name!r}".
+        template_string: The string to parse, e.g., "Hello {name!r}".
 
     Returns:
         A `Template` instance containing the parsed static strings and
         evaluated interpolations.
     """
-    # Get the execution frame of the caller to evaluate expressions in their scope.
-    # sys._getframe(0) is the frame of t()
-    # sys._getframe(1) is the frame of the caller of t()
-    caller_frame = sys._getframe(1)
-    caller_globals = caller_frame.f_globals
-    caller_locals = caller_frame.f_locals
+    try:
+        # Get the execution frame of the caller to evaluate expressions in their scope.
+        # sys._getframe(0) is the frame of t()
+        # sys._getframe(1) is the frame of the caller of t()
+        caller_frame = sys._getframe(1)
+        caller_globals = caller_frame.f_globals
+        caller_locals = caller_frame.f_locals
+    except (ValueError, IndexError):
+        # Fallback for environments where frame inspection might be limited
+        caller_globals = globals()
+        caller_locals = locals()
 
     strings = []
     interpolations = []
+    last_end = 0
 
-    # We split the string by our regex. This gives us an alternating list
-    # of [static_text, captured_group_1, captured_group_2, ..., static_text, ...].
-    # Since our regex matches the *entire* interpolation including braces, the
-    # list will be [static, interp, static, interp, ...].
-    parts = INTERPOLATION_RE.split(f_string)
+    for match in INTERPOLATION_RE.finditer(template_string):
+        # Add the static string part before this interpolation
+        strings.append(template_string[last_end:match.start()])
+        last_end = match.end()
 
-    # The first element is always a static string part.
-    strings.append(parts[0])
-
-    # The rest of the parts come in groups of 5 from our regex match.
-    for i in range(1, len(parts), 5):
-        expression = parts[i]
-        debug = parts[i + 1]
-        conversion_str = parts[i + 2]
-        format_spec = parts[i + 3]
-        next_static_string = parts[i + 4]
-
-        # Process according to PEP 750 rules
-        conv_char = conversion_str[1] if conversion_str else None
-        fmt_spec = format_spec[1:] if format_spec else ""
+        groups = match.groupdict()
+        expression = groups['expression']
 
         # The debug specifier is syntactic sugar. It modifies both the
         # preceding string part and the interpolation itself.
-        if debug:
+        if groups['debug']:
             # t'{value=}' becomes t'value={value!r}'
             # t'{value=:fmt}' becomes t'value={value!s:fmt}'
 
-            # Prepend 'expression=' to the *preceding* static string.
+            # Prepend 'expression=' to the *current* static string.
             strings[-1] += expression
 
-            if conv_char:
-                # PEP 701 specifies this is a syntax error, but we handle it gracefully.
-                # A debug specifier cannot be combined with a conversion.
-                raise SyntaxError(f"f-string: cannot specify both conversion and '='\n  {f_string}")
+            if groups['conversion']:
+                raise SyntaxError(f"f-string: cannot specify both conversion and '='")
 
             # If a format spec is present, conversion becomes 's'. Otherwise, 'r'.
-            conv_char = 's' if fmt_spec else 'r'
+            conv_char = 's' if groups['format_spec'] else 'r'
+        else:
+            conv_char = groups['conversion'][1] if groups['conversion'] else None
 
-        # Evaluate the expression to get its value.
+        fmt_spec = groups['format_spec'][1:] if groups['format_spec'] else ""
+
+        # Evaluate the expression to get its value using the caller's context
         try:
             value = eval(expression, caller_globals, caller_locals)
         except Exception as e:
             # Re-raise with more context
-            raise type(e)(f"Failed to evaluate expression '{expression}': {e}")
+            raise type(e)(f"Failed to evaluate expression '{expression}': {e}") from e
 
         interpolations.append(Interpolation(
             value=value,
@@ -118,7 +117,8 @@ def t(f_string: str) -> Template:
             format_spec=fmt_spec
         ))
 
-        strings.append(next_static_string)
+    # Add the final static string part after the last interpolation
+    strings.append(template_string[last_end:])
 
     return Template(
         strings=tuple(strings),
