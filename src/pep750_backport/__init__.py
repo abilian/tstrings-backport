@@ -90,29 +90,47 @@ def t(template_string: str) -> Template:
             # t'{value=}' becomes t'value={value!r}'
             # t'{value=:fmt}' becomes t'value={value!s:fmt}'
 
-            # Prepend 'expression=' to the *current* static string.
-            strings[-1] += expression
+            # Find the position of the '=' in the original match string
+            # so we can split the expression and the '=' (with whitespace)
+            expr_with_possible_ws = groups['expression']
+            # Find the '=' at the end (possibly with whitespace before/after)
+            eq_index = expr_with_possible_ws.rfind('=')
+            if eq_index != -1:
+                expr_for_static = expr_with_possible_ws[:eq_index+1]
+                expr_for_eval = expr_with_possible_ws[:eq_index].rstrip()
+            else:
+                expr_for_static = expr_with_possible_ws + '='
+                expr_for_eval = expr_with_possible_ws
+
+            # Prepend 'expression=' (with whitespace) to the *current* static string.
+            strings[-1] += expr_for_static
 
             if groups['conversion']:
                 raise SyntaxError(f"f-string: cannot specify both conversion and '='")
 
             # If a format spec is present, conversion becomes 's'. Otherwise, 'r'.
             conv_char = 's' if groups['format_spec'] else 'r'
+            expression_to_eval = expr_for_eval
         else:
             conv_char = groups['conversion'][1] if groups['conversion'] else None
+            expression_to_eval = groups['expression']
 
         fmt_spec = groups['format_spec'][1:] if groups['format_spec'] else ""
 
+        # Dedent multiline expressions for evaluation
+        import textwrap
+        expr_eval_str = textwrap.dedent(expression_to_eval)
+
         # Evaluate the expression to get its value using the caller's context
         try:
-            value = eval(expression, caller_globals, caller_locals)
+            value = eval(expr_eval_str, caller_globals, caller_locals)
         except Exception as e:
             # Re-raise with more context
-            raise type(e)(f"Failed to evaluate expression '{expression}': {e}") from e
+            raise type(e)(f"Failed to evaluate expression '{expression_to_eval}': {e}") from e
 
         interpolations.append(Interpolation(
             value=value,
-            expression=expression,
+            expression=expression_to_eval,
             conversion=conv_char,
             format_spec=fmt_spec
         ))
