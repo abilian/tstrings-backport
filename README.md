@@ -30,14 +30,14 @@ The returned object is a `Template` with `.strings` and `.interpolations` attrib
 ## Limitations
 
 - **No t-string literal syntax**: You must use `t("...")`, not `t"..."`.
-- **No runtime code generation**: All expressions are evaluated eagerly.
 - **No support for all edge cases**: Some advanced f-string/t-string edge cases may not be fully supported.
-- **No i18n integration**: This is a low-level template string parser, not a full translation system.
 
 ## Examples
 
 ```python
 from tstrings import t
+
+name = ""
 
 # Simple
 tpl = t("Hello, {name}!")
@@ -58,7 +58,7 @@ tpl = t("""
 - Run the test suite with:
 
     ```sh
-    nox -s tests
+    nox
     ```
 
 - See `tests/test_all.py` for coverage of all supported features.

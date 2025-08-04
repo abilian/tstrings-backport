@@ -6,25 +6,23 @@ readme = "README.md"
 authors = [
     { name = "Stefane Fermigier", email = "sf@abilian.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = []
-
-[project.scripts]
-pep750-backport = "pep750_backport:main"
-
-[tool.setuptools]
-packages = ["tstrings"]
-package-dir = {"" = "src"}
 
 [build-system]
 requires = ["uv_build>=0.8.4,<0.9.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "tstrings"
+module-root = "src"
 
 [dependency-groups]
 dev = [
     "aider-chat>=0.85.2",
     "coverage>=7.10.2",
     "isort>=6.0.1",
+    "nox>=2025.5.1",
     "pytest>=8.4.1",
     "ruff>=0.12.7",
 ]

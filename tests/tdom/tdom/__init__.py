@@ -1,4 +1,4 @@
-from pep750_backport import Template
+from tstrings import Template
 
 from .dom import (
     COMMENT,

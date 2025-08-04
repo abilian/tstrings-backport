@@ -1,6 +1,6 @@
 import pytest
 
-from pep750_backport import t
+from tstrings import t
 
 
 def test_simple_string():

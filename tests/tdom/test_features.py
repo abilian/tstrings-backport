@@ -3,7 +3,7 @@
 from unittest import skip
 from random import random
 
-from pep750_backport import t
+from tstrings import t
 from .tdom import html, unsafe
 
 assert unsafe

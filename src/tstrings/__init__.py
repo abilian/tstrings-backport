@@ -136,9 +136,8 @@ def t(template_string: str) -> Template:
             value = eval(expr_eval_str, caller_globals, caller_locals)
         except Exception as e:
             # Re-raise with more context
-            raise type(e)(
-                f"Failed to evaluate expression '{expression_to_eval}': {e}"
-            ) from e
+            msg = f"Failed to evaluate expression '{expression_to_eval}': {e}"
+            raise type(e)(msg) from e
 
         interpolations.append(
             Interpolation(
