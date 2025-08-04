@@ -12,6 +12,10 @@ dependencies = []
 [project.scripts]
 pep750-backport = "pep750_backport:main"
 
+[tool.setuptools]
+packages = ["tstrings"]
+package-dir = {"" = "src"}
+
 [build-system]
 requires = ["uv_build>=0.8.4,<0.9.0"]
 build-backend = "uv_build"
