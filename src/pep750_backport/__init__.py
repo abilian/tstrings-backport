@@ -1,7 +1,7 @@
 import re
 import sys
 from dataclasses import dataclass
-from typing import Literal, Tuple, Optional
+from typing import Literal, Optional, Tuple
 
 # Regex to find and parse an f-string-like interpolation.
 # It captures:
@@ -9,7 +9,8 @@ from typing import Literal, Tuple, Optional
 # 2. An optional debug specifier (=).
 # 3. An optional conversion specifier (!r, !s, or !a).
 # 4. An optional format specifier (:...).
-INTERPOLATION_RE = re.compile(r"""
+INTERPOLATION_RE = re.compile(
+    r"""
     \{
         # The core expression, non-greedy
         (?P<expression>.+?)
@@ -20,7 +21,9 @@ INTERPOLATION_RE = re.compile(r"""
         # Optional format spec, starting with a colon
         (?P<format_spec>:.+)?
     }
-""", re.VERBOSE | re.DOTALL)
+    """,
+    re.VERBOSE | re.DOTALL,
+)
 
 
 @dataclass(frozen=True)
@@ -29,6 +32,7 @@ class Interpolation:
     Emulates the string.templatelib.Interpolation class from PEP 750.
     Represents an expression inside a template string.
     """
+
     value: object
     expression: str
     conversion: Optional[Literal["a", "r", "s"]] = None
@@ -41,6 +45,7 @@ class Template:
     Emulates the string.templatelib.Template class from PEP 750.
     Represents a parsed t-string literal.
     """
+
     strings: Tuple[str, ...]
     interpolations: Tuple[Interpolation, ...]
 
@@ -60,17 +65,12 @@ def t(template_string: str) -> Template:
         A `Template` instance containing the parsed static strings and
         evaluated interpolations.
     """
-    try:
-        # Get the execution frame of the caller to evaluate expressions in their scope.
-        # sys._getframe(0) is the frame of t()
-        # sys._getframe(1) is the frame of the caller of t()
-        caller_frame = sys._getframe(1)
-        caller_globals = caller_frame.f_globals
-        caller_locals = caller_frame.f_locals
-    except (ValueError, IndexError):
-        # Fallback for environments where frame inspection might be limited
-        caller_globals = globals()
-        caller_locals = locals()
+    # Get the execution frame of the caller to evaluate expressions in their scope.
+    # sys._getframe(0) is the frame of t()
+    # sys._getframe(1) is the frame of the caller of t()
+    caller_frame = sys._getframe(1)
+    caller_globals = caller_frame.f_globals
+    caller_locals = caller_frame.f_locals
 
     strings = []
     interpolations = []
@@ -78,34 +78,34 @@ def t(template_string: str) -> Template:
 
     for match in INTERPOLATION_RE.finditer(template_string):
         # Add the static string part before this interpolation
-        strings.append(template_string[last_end:match.start()])
+        strings.append(template_string[last_end : match.start()])
         last_end = match.end()
 
         groups = match.groupdict()
-        expression = groups['expression']
+        expression = groups["expression"]
 
         # The debug specifier is syntactic sugar. It modifies both the
         # preceding string part and the interpolation itself.
-        if groups['debug']:
+        if groups["debug"]:
             # t'{value=}' becomes t'value={value!r}'
             # t'{value=:fmt}' becomes t'value={value!s:fmt}'
 
             # Find the position of the '=' in the original match string
             # so we can split the expression and the '=' (with whitespace)
-            expr_with_possible_ws = groups['expression']
+            expr_with_possible_ws = groups["expression"]
             # Find the '=' at the end (possibly with whitespace before/after)
-            eq_index = expr_with_possible_ws.rfind('=')
+            eq_index = expr_with_possible_ws.rfind("=")
             if eq_index != -1:
-                expr_for_static = expr_with_possible_ws[:eq_index+1]
+                expr_for_static = expr_with_possible_ws[: eq_index + 1]
                 # Remove trailing whitespace and the '=' for evaluation
                 expr_for_eval = expr_with_possible_ws[:eq_index]
                 # Strip all whitespace from both ends for evaluation
                 expr_for_eval = expr_for_eval.strip()
                 # Remove any trailing '=' if present (shouldn't be, but for safety)
-                if expr_for_eval.endswith('='):
+                if expr_for_eval.endswith("="):
                     expr_for_eval = expr_for_eval[:-1].rstrip()
             else:
-                expr_for_static = expr_with_possible_ws + '='
+                expr_for_static = expr_with_possible_ws + "="
                 expr_for_eval = expr_with_possible_ws.strip()
 
             # Prepend 'expression=' (with whitespace) to the *current* static string.
@@ -114,20 +114,21 @@ def t(template_string: str) -> Template:
             # For debug specifier, strip trailing '=' and whitespace for evaluation
             # (already done above)
 
-            if groups['conversion']:
+            if groups["conversion"]:
                 raise SyntaxError(f"f-string: cannot specify both conversion and '='")
 
             # If a format spec is present, conversion becomes 's'. Otherwise, 'r'.
-            conv_char = 's' if groups['format_spec'] else 'r'
+            conv_char = "s" if groups["format_spec"] else "r"
             expression_to_eval = expr_for_eval
         else:
-            conv_char = groups['conversion'][1] if groups['conversion'] else None
-            expression_to_eval = groups['expression']
+            conv_char = groups["conversion"][1] if groups["conversion"] else None
+            expression_to_eval = groups["expression"]
 
-        fmt_spec = groups['format_spec'][1:] if groups['format_spec'] else ""
+        fmt_spec = groups["format_spec"][1:] if groups["format_spec"] else ""
 
         # Dedent multiline expressions for evaluation
         import textwrap
+
         expr_eval_str = textwrap.dedent(expression_to_eval)
 
         # Evaluate the expression to get its value using the caller's context
@@ -135,19 +136,20 @@ def t(template_string: str) -> Template:
             value = eval(expr_eval_str, caller_globals, caller_locals)
         except Exception as e:
             # Re-raise with more context
-            raise type(e)(f"Failed to evaluate expression '{expression_to_eval}': {e}") from e
+            raise type(e)(
+                f"Failed to evaluate expression '{expression_to_eval}': {e}"
+            ) from e
 
-        interpolations.append(Interpolation(
-            value=value,
-            expression=expression_to_eval,
-            conversion=conv_char,
-            format_spec=fmt_spec
-        ))
+        interpolations.append(
+            Interpolation(
+                value=value,
+                expression=expression_to_eval,
+                conversion=conv_char,
+                format_spec=fmt_spec,
+            )
+        )
 
     # Add the final static string part after the last interpolation
     strings.append(template_string[last_end:])
 
-    return Template(
-        strings=tuple(strings),
-        interpolations=tuple(interpolations)
-    )
+    return Template(strings=tuple(strings), interpolations=tuple(interpolations))

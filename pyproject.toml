@@ -20,5 +20,7 @@ build-backend = "uv_build"
 dev = [
     "aider-chat>=0.85.2",
     "coverage>=7.10.2",
+    "isort>=6.0.1",
     "pytest>=8.4.1",
+    "ruff>=0.12.7",
 ]

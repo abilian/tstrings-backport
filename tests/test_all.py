@@ -54,11 +54,11 @@ def test_conversion_specifiers():
     """Tests !r, !s, and !a conversions."""
     value = "Test"
     template_r = t("{value!r}")
-    assert template_r.interpolations[0].conversion == 'r'
+    assert template_r.interpolations[0].conversion == "r"
     template_s = t("{value!s}")
-    assert template_s.interpolations[0].conversion == 's'
+    assert template_s.interpolations[0].conversion == "s"
     template_a = t("{value!a}")
-    assert template_a.interpolations[0].conversion == 'a'
+    assert template_a.interpolations[0].conversion == "a"
 
 
 def test_format_specifier():
@@ -100,7 +100,7 @@ def test_debug_specifier_simple():
     interp = template.interpolations[0]
     assert interp.value == 42
     assert interp.expression == "var"
-    assert interp.conversion == 'r'  # Should default to !r
+    assert interp.conversion == "r"  # Should default to !r
     assert interp.format_spec == ""
 
 
@@ -111,7 +111,7 @@ def test_debug_specifier_with_text_and_whitespace():
     assert template.strings == ("The value is val=", ".")
     interp = template.interpolations[0]
     assert interp.expression == "val"
-    assert interp.conversion == 'r'
+    assert interp.conversion == "r"
 
 
 def test_debug_specifier_with_format():
@@ -122,7 +122,7 @@ def test_debug_specifier_with_format():
     interp = template.interpolations[0]
     assert interp.value == 3.14159
     assert interp.expression == "num"
-    assert interp.conversion == 's'  # Should switch to !s
+    assert interp.conversion == "s"  # Should switch to !s
     assert interp.format_spec == ".2f"
 
 

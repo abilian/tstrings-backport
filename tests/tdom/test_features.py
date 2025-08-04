@@ -1,8 +1,13 @@
 """Cover the examples in Andrea's demo."""
+
 from unittest import skip
+from random import random
 
 from pep750_backport import t
-from .tdom import html, svg, unsafe
+from .tdom import html, unsafe
+
+assert unsafe
+assert random
 
 
 def test_automatic_quotes():
@@ -13,7 +18,6 @@ def test_automatic_quotes():
 
 def test_sanitized_content():
     """Sanitized content out of the box"""
-    from random import random
 
     result = html(t("Some random number: {random()}"))
     # QUESTION: Not sure what to test here
@@ -76,8 +80,8 @@ def test_svg():
             <svg>
               {svg(t'<rect width="200" height="100" rx="20" ry="20" fill="blue" />')}
             </svg>
-          """
-        ))
+          """)
+    )
     assert str(result) == (
         '<svg><rect width="200" height="100" rx="20" ry="20" fill="blue" /></svg>'
     )
@@ -95,17 +99,17 @@ def test_unsafe():
     # First, a usage without wrapping in unsafe
     span = "<span>Hello World</span>"
     result1 = html(t("<div>{span}</div>"))
-    assert str(result1) == '<div>&lt;span&gt;Hello World&lt;/span&gt;</div>'
+    assert str(result1) == "<div>&lt;span&gt;Hello World&lt;/span&gt;</div>"
 
     # Now wrap it in unsafe and it isn't escaped
     result2 = html(t("<div>{unsafe(span)}</div>"))
-    assert str(result2) == '<div><span>Hello World</span></div>'
+    assert str(result2) == "<div><span>Hello World</span></div>"
 
 
 def test_component():
     """Render a t-string that references a component."""
 
-    def Component(a:str, b:int, children:list):
+    def Component(a: str, b: int, children: list):
         return html(
             t("""
                 <div a={a} b={b}>
@@ -128,7 +132,7 @@ def test_component():
 def test_component_without_children():
     """Render a t-string that references a component."""
 
-    def Component(a:str, b:int):
+    def Component(a: str, b: int):
         return html(
             t("""
                 <div a={a} b={b} />
