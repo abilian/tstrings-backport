@@ -101,17 +101,17 @@ def t(template_string: str) -> Template:
                 expr_for_eval = expr_with_possible_ws[:eq_index].rstrip()
                 # Remove any trailing whitespace from the expression for evaluation
                 expr_for_eval = expr_for_eval.rstrip()
+                # Remove any leading whitespace from the expression for evaluation
+                expr_for_eval = expr_for_eval.lstrip()
             else:
                 expr_for_static = expr_with_possible_ws + '='
-                expr_for_eval = expr_with_possible_ws
+                expr_for_eval = expr_with_possible_ws.strip()
 
             # Prepend 'expression=' (with whitespace) to the *current* static string.
             strings[-1] += expr_for_static
 
             # For debug specifier, strip trailing '=' and whitespace for evaluation
-            expr_for_eval = expr_for_eval.rstrip()
-            # If there's any leading whitespace, also strip it for evaluation
-            expr_for_eval = expr_for_eval.lstrip()
+            # (already done above)
 
             if groups['conversion']:
                 raise SyntaxError(f"f-string: cannot specify both conversion and '='")
