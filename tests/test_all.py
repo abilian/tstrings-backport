@@ -20,6 +20,7 @@ def test_empty_string():
 def test_simple_interpolation():
     """Tests a basic variable interpolation."""
     name = "World"
+    assert name
     template = t("Hello, {name}!")
     assert template.strings == ("Hello, ", "!")
     assert len(template.interpolations) == 1
@@ -33,6 +34,7 @@ def test_simple_interpolation():
 def test_leading_and_trailing_interpolations():
     """Tests interpolations at the start and end of the string."""
     a, b = 1, 2
+    assert a and b
     template_leading = t("{a} is first")
     assert template_leading.strings == ("", " is first")
 
@@ -43,6 +45,7 @@ def test_leading_and_trailing_interpolations():
 def test_adjacent_interpolations():
     """Tests two interpolations with no text between them."""
     first, second = "one", "two"
+    assert first and second
     template = t("{first}{second}")
     assert template.strings == ("", "", "")
     assert len(template.interpolations) == 2
@@ -53,6 +56,7 @@ def test_adjacent_interpolations():
 def test_conversion_specifiers():
     """Tests !r, !s, and !a conversions."""
     value = "Test"
+    assert value
     template_r = t("{value!r}")
     assert template_r.interpolations[0].conversion == "r"
     template_s = t("{value!s}")
@@ -64,6 +68,7 @@ def test_conversion_specifiers():
 def test_format_specifier():
     """Tests a format specification."""
     num = 123.456
+    assert num
     template = t("{num:.2f}")
     interp = template.interpolations[0]
     assert interp.value == 123.456
@@ -85,6 +90,7 @@ def test_complex_expression():
 def test_multiline_expression():
     """Tests an expression spanning multiple lines."""
     data = [1, 2, 3]
+    assert data
     template = t("""{
         sum(data)
     }""")
@@ -94,6 +100,7 @@ def test_multiline_expression():
 def test_debug_specifier_simple():
     """Tests the debug specifier: {var=}."""
     var = 42
+    assert var
     template = t("{var=}")
     assert template.strings == ("var=", "")
     assert len(template.interpolations) == 1
@@ -107,6 +114,7 @@ def test_debug_specifier_simple():
 def test_debug_specifier_with_text_and_whitespace():
     """Tests the debug specifier with surrounding text and whitespace."""
     val = "test"
+    assert val
     template = t("The value is {val=}.")
     assert template.strings == ("The value is val=", ".")
     interp = template.interpolations[0]
@@ -117,6 +125,7 @@ def test_debug_specifier_with_text_and_whitespace():
 def test_debug_specifier_with_format():
     """Tests the debug specifier with a format spec: {var=:.2f}."""
     num = 3.14159
+    assert num
     template = t("{num=:.2f}")
     assert template.strings == ("num=", "")
     interp = template.interpolations[0]
@@ -129,6 +138,7 @@ def test_debug_specifier_with_format():
 def test_debug_with_conversion_is_error():
     """Verifies that {var!r=} raises a SyntaxError."""
     var = 1
+    assert var
     with pytest.raises(SyntaxError):
         t("{var!r=}")
 

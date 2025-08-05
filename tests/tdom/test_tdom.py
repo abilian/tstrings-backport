@@ -1,9 +1,10 @@
 """Cover the examples in Andrea's demo."""
 
-from unittest import skip
 from random import random
+from unittest import skip
 
 from tstrings import t
+
 from .tdom import html, unsafe
 
 assert unsafe
@@ -27,6 +28,7 @@ def test_sanitized_content():
 def test_self_closing_tags():
     """Sanitized content out of the box"""
     value = "Hello"
+    assert value
     result = html(t("<textarea placeholder={value} />"))
     assert str(result) == '<textarea placeholder="Hello"></textarea>'
 
@@ -35,6 +37,7 @@ def test_special_attributes():
     """Data and ARIA"""
     data = {"a": 1, "b": 2}
     aria = {"role": "button", "label": "Click me"}
+    assert data and aria
     result = html(t("<div data={data} aria={aria} />"))
     assert (
         str(result)
@@ -90,6 +93,7 @@ def test_svg():
 def test_style():
     """Style attribute."""
     style = {"color": "red", "font-size": "12px"}
+    assert style
     result = html(t("<div style={style} />"))
     assert str(result) == '<div style="color:red;font-size:12px"></div>'
 
@@ -98,6 +102,7 @@ def test_unsafe():
     """Unsafe strings."""
     # First, a usage without wrapping in unsafe
     span = "<span>Hello World</span>"
+    assert span
     result1 = html(t("<div>{span}</div>"))
     assert str(result1) == "<div>&lt;span&gt;Hello World&lt;/span&gt;</div>"
 
@@ -153,6 +158,7 @@ def test_lists_within_layout():
     """A template in a template."""
 
     names = ["John", "Jane", "Jill"]
+    assert names
     result = html(
         t("""
             <ul>

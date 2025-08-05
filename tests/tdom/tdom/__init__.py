@@ -1,21 +1,8 @@
 from tstrings import Template
 
-from .dom import (
-    COMMENT,
-    DOCUMENT_TYPE,
-    ELEMENT,
-    FRAGMENT,
-    TEXT,
-    Comment,
-    DocumentType,
-    Element,
-    Fragment,
-    Node,
-    Text,
-    _clone,
-    parse,
-    unsafe,
-)
+from .dom import (COMMENT, DOCUMENT_TYPE, ELEMENT, FRAGMENT, TEXT, Comment,
+                  DocumentType, Element, Fragment, Node, Text, _clone, parse,
+                  unsafe)
 from .utils import _Attribute, _Comment, _parse
 
 _parsed = {}
@@ -35,7 +22,7 @@ def _util(svg):
 
         length = len(values)
 
-        if not strings in _parsed:
+        if strings not in _parsed:
             _parsed[strings] = _parse(strings, length, svg)
 
         content, updates = _parsed[strings]

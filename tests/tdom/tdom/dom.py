@@ -104,7 +104,7 @@ class Element(Node):
         name = self["name"]
         html = f"<{name}"
         for key, value in self["props"].items():
-            if value != None:
+            if value is not None:
                 if isinstance(value, bool):
                     if value:
                         html += f' {key}=""' if xml else f" {key}"
@@ -120,7 +120,7 @@ class Element(Node):
             html += " />"
         else:
             html += ">"
-            if not name.lower() in VOID_ELEMENTS:
+            if name.lower() not in VOID_ELEMENTS:
                 html += "</" + name + ">"
         return html
 
@@ -253,7 +253,7 @@ if _IS_MICRO_PYTHON:
                     element = Element(name, xml)
                     _append(node, element)
 
-                    not_void = not xml and not name.lower() in VOID_ELEMENTS
+                    not_void = not xml and name.lower() not in VOID_ELEMENTS
                     if not_void:
                         node = element
 
@@ -293,7 +293,7 @@ else:
             element = Element(tag, self.xml)
             _append(self.node, element)
 
-            if not self.xml and not tag.lower() in VOID_ELEMENTS:
+            if not self.xml and tag.lower() not in VOID_ELEMENTS:
                 self.node = element
 
             props = element["props"]
@@ -301,7 +301,7 @@ else:
                 props[name] = value
 
         def handle_endtag(self, tag):
-            if not self.xml and not tag.lower() in VOID_ELEMENTS:
+            if not self.xml and tag.lower() not in VOID_ELEMENTS:
                 parent = self.node.parent
                 if parent:
                     self.node = parent

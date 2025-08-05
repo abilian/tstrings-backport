@@ -82,7 +82,6 @@ def t(template_string: str) -> Template:
         last_end = match.end()
 
         groups = match.groupdict()
-        expression = groups["expression"]
 
         # The debug specifier is syntactic sugar. It modifies both the
         # preceding string part and the interpolation itself.
@@ -115,7 +114,7 @@ def t(template_string: str) -> Template:
             # (already done above)
 
             if groups["conversion"]:
-                raise SyntaxError(f"f-string: cannot specify both conversion and '='")
+                raise SyntaxError("f-string: cannot specify both conversion and '='")
 
             # If a format spec is present, conversion becomes 's'. Otherwise, 'r'.
             conv_char = "s" if groups["format_spec"] else "r"
