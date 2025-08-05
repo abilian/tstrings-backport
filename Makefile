@@ -1,19 +1,19 @@
 .PHONY: all test build format check lint
 
-all: format check test build
+all: check test
+
+check: lint
+
+lint:
+	ruff check .
 
 test:
+	pytest
 	nox -s tests
 
 build:
 	uv build
 
 format:
-	ruff format .
 	isort .
-
-check: lint
-
-lint:
-	ruff check .
-	isort --check-only .
+	ruff format .
