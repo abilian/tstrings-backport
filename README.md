@@ -24,13 +24,13 @@ The returned object is a `Template` with `.strings` and `.interpolations` attrib
 - **Conversion specifiers**: `{val!r}`, `{val!s}`, `{val!a}`.
 - **Format specifiers**: `{num:.2f}`.
 - **Multiline expressions**: Supported.
-- **Error handling**: Raises `NameError` or `SyntaxError` for invalid expressions, as in f-strings.
+- **Error handling**: Raises `NameError` or `SyntaxError` for invalid expressions, as in f-strings (but at runtime, not at compile time).
 - **PEP 750 API**: Returns `Template` and `Interpolation` dataclasses matching the PEP.
 
 ## Limitations
 
 - **No t-string literal syntax**: You must use `t("...")`, not `t"..."`.
-- **No support for all edge cases**: Some advanced f-string/t-string edge cases may not be fully supported.
+- **No support for all edge cases**: Some advanced t-string edge cases may not be fully supported.
 
 ## Examples
 
@@ -59,16 +59,26 @@ tpl = t("""
 
 ## Development & Testing
 
+Install with `uv sync` and activate the virtualenv (`. .venv/bin/activate` or similar).
+
 Run the test suite with:
 
 ```sh
 nox
 ```
 
+or just:
+
+```sh
+pytest
+```
+
 See `tests/test_all.py` for coverage of all supported features.
+
+Tests also include the tdom source code (modified for pre-3.14 syntax) and test suite.
 
 ## How to help
 
-This was hacked together in less than 1 hour. If you find it useful, please consider contributing fixes, improvements, or documentation!
+This was hacked together in less than 2 hours. If you find it useful, please consider contributing fixes, improvements, or documentation!
 
 Pull requests and issues are welcome.
