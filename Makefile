@@ -11,7 +11,7 @@ test:
 	pytest
 	nox -s tests
 
-build:
+build: clean
 	uv build
 
 format:
@@ -20,3 +20,6 @@ format:
 
 clean:
 	rm -rf .pytest_cache .nox .ruff_cache dist build __pycache__ .mypy_cache .coverage htmlcov .coverage.* *.egg-info
+
+publish:
+	uv publish 
