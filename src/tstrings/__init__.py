@@ -9,7 +9,7 @@ from typing import Literal, Optional, Tuple
 # 2. An optional debug specifier (=).
 # 3. An optional conversion specifier (!r, !s, or !a).
 # 4. An optional format specifier (:...).
-INTERPOLATION_RE = re.compile(
+_INTERPOLATION_RE = re.compile(
     r"""
     \{
         # The core expression, non-greedy
@@ -76,7 +76,7 @@ def t(template_string: str) -> Template:
     interpolations = []
     last_end = 0
 
-    for match in INTERPOLATION_RE.finditer(template_string):
+    for match in _INTERPOLATION_RE.finditer(template_string):
         # Add the static string part before this interpolation
         strings.append(template_string[last_end : match.start()])
         last_end = match.end()
