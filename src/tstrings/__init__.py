@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 __all__ = [
-    "Template",
     "Interpolation",
+    "Template",
     "t",
 ]
 
@@ -87,8 +87,7 @@ class Template:
 
     @property
     def values(self) -> tuple[object, ...]:
-        """
-        Return a tuple of the `value` attributes of each Interpolation in the template.
+        """A tuple of the `value` attributes of each Interpolation in the template.
 
         This will be an empty tuple if there are no interpolations.
         """

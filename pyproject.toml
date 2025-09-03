@@ -40,7 +40,8 @@ select = [
     "E",
     "W",
     # isort
-    "I001"
+    "I001",
+    "RUF",
 ]
 
 [tool.ruff.format]
