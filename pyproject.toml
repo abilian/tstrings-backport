@@ -25,7 +25,6 @@ module-root = "src"
 [dependency-groups]
 dev = [
     "coverage>=7.10.2",
-    "isort>=6.0.1",
     "nox>=2025.5.1",
     "pytest>=8.4.1",
     "ruff>=0.12.7",
@@ -33,3 +32,17 @@ dev = [
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
+
+[tool.ruff.lint]
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I001"
+]
+
+[tool.ruff.format]
+docstring-code-format = true

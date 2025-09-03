@@ -212,7 +212,7 @@ def test_interpolation_repr():
     interp = Interpolation("value", "expr", "r", ".2f")
     assert (
         repr(interp)
-        == "Interpolation(value='value', expression='expr', conversion='r', format_spec='.2f')"
+        == "Interpolation(value='value', expression='expr', conversion='r', format_spec='.2f')"  # noqa: E501
     )
 
 
@@ -223,7 +223,7 @@ def test_template_repr():
     template = t("Hello, {name}!")
     assert (
         repr(template)
-        == "Template(strings=('Hello, ', '!'), interpolations=(Interpolation(value='world', expression='name', conversion=None, format_spec=''),))"
+        == "Template(strings=('Hello, ', '!'), interpolations=(Interpolation(value='world', expression='name', conversion=None, format_spec=''),))"  # noqa: E501
     )
 
 

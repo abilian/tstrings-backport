@@ -78,7 +78,8 @@ class Template:
 
     @property
     def values(self) -> tuple[object, ...]:
-        """Return a tuple of the `value` attributes of each Interpolation in the template.
+        """
+        Return a tuple of the `value` attributes of each Interpolation in the template.
 
         This will be an empty tuple if there are no interpolations.
         """
@@ -135,9 +136,13 @@ def t(template_string: str, /) -> Template:
         >>> template = t("Temperature: {temp:.1f} degrees {unit!s}")
         >>> template.strings
         ('Temperature: ', ' degrees ', '')
-        >>> template.interpolations
-        (Interpolation(value=22.43, expression='temp', conversion=None, format_spec='.1f'), Interpolation(value='C', expression='unit', conversion='s', format_spec=''))
-    """
+        >>> len(template.interpolations)
+        2
+        >>> template.interpolations[0]
+        Interpolation(value=22.43, expression='temp', conversion=None, format_spec='.1f')
+        >>> template.interpolations[1]
+        Interpolation(value='C', expression='unit', conversion='s', format_spec='')
+    """  # noqa: E501
     # Get the execution frame of the caller to evaluate expressions in their scope.
     # sys._getframe(0) is the frame of t()
     # sys._getframe(1) is the frame of the caller of t()
