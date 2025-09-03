@@ -292,6 +292,14 @@ def test_add():
     assert t3.interpolations == (t1.interpolations[0], t2.interpolations[0])
 
 
+def test_add_empty():
+    t1 = t("")
+    t2 = t("")
+    t3 = t1 + t2
+    assert t3.strings == ("",)
+    assert len(t3.interpolations) == 0
+
+
 def test_add_not_supported():
     template = t("content")
     with pytest.raises(TypeError):
