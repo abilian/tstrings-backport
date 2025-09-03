@@ -1,8 +1,21 @@
 from tstrings import Template
 
-from .dom import (COMMENT, DOCUMENT_TYPE, ELEMENT, FRAGMENT, TEXT, Comment,
-                  DocumentType, Element, Fragment, Node, Text, _clone, parse,
-                  unsafe)
+from .dom import (
+    COMMENT,
+    DOCUMENT_TYPE,
+    ELEMENT,
+    FRAGMENT,
+    TEXT,
+    Comment,
+    DocumentType,
+    Element,
+    Fragment,
+    Node,
+    Text,
+    _clone,
+    parse,
+    unsafe,
+)
 from .utils import _Attribute, _Comment, _parse
 
 _parsed = {}

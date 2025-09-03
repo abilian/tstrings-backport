@@ -1,7 +1,16 @@
 from types import GeneratorType
 
-from .dom import (_IS_MICRO_PYTHON, COMMENT, ELEMENT, FRAGMENT, Fragment, Node,
-                  Text, _appendChildren, _replaceWith)
+from .dom import (
+    _IS_MICRO_PYTHON,
+    COMMENT,
+    ELEMENT,
+    FRAGMENT,
+    Fragment,
+    Node,
+    Text,
+    _appendChildren,
+    _replaceWith,
+)
 from .dom import parse as domify
 from .parser import _instrument, _prefix
 

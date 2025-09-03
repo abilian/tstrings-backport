@@ -6,9 +6,10 @@ check: lint
 
 lint:
 	ruff check .
+	ruff format . --check
 
 test:
-	pytest
+	pytest --doctest-modules
 	nox -s tests
 
 build: clean

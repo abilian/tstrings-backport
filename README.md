@@ -4,6 +4,8 @@ This package provides a backport of the new [PEP 750](https://peps.python.org/pe
 
 ## Usage
 
+Install from [PyPI](https://pypi.org/project/tstrings-backport/) with `uv add tstrings-backport` or `python -m pip install tstrings-backport`.
+
 Instead of the new syntax `t"..."` (which is only available in Python 3.14+), use the function call form:
 
 ```python
@@ -15,7 +17,8 @@ print(tpl.strings)         # ("Hello, ", "!")
 print(tpl.interpolations)  # (Interpolation(value="World", expression="name", ...),)
 ```
 
-The returned object is a `Template` with `.strings` and `.interpolations` attributes, closely matching the PEP 750 API.
+The returned object is a `Template` with `.strings` and `.interpolations` attributes,
+which should be a drop-in replacement for the built-in t-strings.
 
 ## Features
 
