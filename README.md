@@ -67,13 +67,13 @@ Install with `uv sync` and activate the virtualenv (`. .venv/bin/activate` or si
 Run the test suite with:
 
 ```sh
-nox
+make test
 ```
 
 or just:
 
 ```sh
-pytest
+uv run --python 3.13 pytest
 ```
 
 See `tests/test_all.py` for coverage of all supported features.

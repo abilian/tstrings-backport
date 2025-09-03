@@ -25,7 +25,6 @@ module-root = "src"
 [dependency-groups]
 dev = [
     "coverage>=7.10.2",
-    "nox>=2025.5.1",
     "pytest>=8.4.1",
     "ruff>=0.12.7",
 ]

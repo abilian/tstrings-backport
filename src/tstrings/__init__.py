@@ -39,8 +39,13 @@ _INTERPOLATION_RE = re.compile(
     re.VERBOSE | re.DOTALL,
 )
 
+if sys.version_info >= (3, 10):
+    dataclass_extra_args = {"slots": True}
+else:
+    dataclass_extra_args = {}
 
-@dataclass(frozen=True, eq=False, slots=True)
+
+@dataclass(frozen=True, eq=False, **dataclass_extra_args)
 class Interpolation:
     """Emulates the string.templatelib.Interpolation class from PEP 750.
 
@@ -57,7 +62,7 @@ class Interpolation:
         return self is value
 
 
-@dataclass(frozen=True, eq=False, slots=True)
+@dataclass(frozen=True, eq=False, **dataclass_extra_args)
 class Template:
     """Emulates the string.templatelib.Template class from PEP 750.
 
