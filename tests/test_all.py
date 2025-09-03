@@ -252,6 +252,22 @@ def test_template_equality():
     assert t1 != 5
 
 
+def test_interpolation_hash():
+    i1 = Interpolation("value", "expr")
+    i2 = Interpolation("value", "expr")
+    assert hash(i1) == hash(i1)
+    assert hash(i1) != hash(i2)
+
+
+def test_template_hash():
+    name = "world"
+    assert name
+    t1 = t("Hello, {name}!")
+    t2 = t("Hello, {name}!")
+    assert hash(t1) == hash(t1)
+    assert hash(t1) != hash(t2)
+
+
 def test_interpolation_ordering_errors():
     i1 = Interpolation("value", "expr")
     i2 = Interpolation("value", "expr")

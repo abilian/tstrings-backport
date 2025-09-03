@@ -61,6 +61,10 @@ class Interpolation:
         """Template and Interpolation instances compare with object identity (is)."""
         return self is value
 
+    def __hash__(self) -> int:
+        """Hash based on identity."""
+        return id(self)
+
 
 @dataclass(frozen=True, eq=False, **dataclass_extra_args)
 class Template:
@@ -116,6 +120,10 @@ class Template:
     def __eq__(self, value: object) -> bool:
         """Template and Interpolation instances compare with object identity (is)."""
         return self is value
+
+    def __hash__(self) -> int:
+        """Hash based on identity."""
+        return id(self)
 
     def __str__(self) -> NoReturn:
         """Explicitly disallowed."""
