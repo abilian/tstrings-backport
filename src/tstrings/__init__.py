@@ -32,8 +32,8 @@ _INTERPOLATION_RE = re.compile(
         (?P<debug>=)?
         # Optional conversion, one of !r, !s, or !a
         (?P<conversion>![rsa])?
-        # Optional format spec, starting with a colon
-        (?P<format_spec>:.+)?
+        # Optional format spec, starting with a colon, non-greedy until }
+        (?P<format_spec>:[^}]*)?
     }
     """,
     re.VERBOSE | re.DOTALL,
@@ -136,7 +136,7 @@ def t(template_string: str, /) -> Template:
         >>> template.strings
         ('Temperature: ', ' degrees ', '')
         >>> template.interpolations
-        (Interpolation(value=22.43, expression='temp', conversion='f', format_spec='.1f'), Interpolation(value='C', expression='unit', conversion=None, format_spec=''))
+        (Interpolation(value=22.43, expression='temp', conversion=None, format_spec='.1f'), Interpolation(value='C', expression='unit', conversion='s', format_spec=''))
     """
     # Get the execution frame of the caller to evaluate expressions in their scope.
     # sys._getframe(0) is the frame of t()

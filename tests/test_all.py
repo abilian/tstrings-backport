@@ -88,23 +88,36 @@ def test_format_specifier():
     assert interp.conversion is None
 
 
-@pytest.mark.xfail
-def test_multiple_specs():
+def test_format_then_conversion():
     temp, unit = 22.43, "C"
     assert temp and unit
     template = t("Temperature: {temp:.1f} degrees {unit!s}")
     assert template.strings == ("Temperature: ", " degrees ", "")
     assert len(template.interpolations) == 2
-
     assert template.interpolations[0].value == 22.43
     assert template.interpolations[0].expression == "temp"
-    assert template.interpolations[0].conversion == ""
+    assert template.interpolations[0].conversion is None
     assert template.interpolations[0].format_spec == ".1f"
-
     assert template.interpolations[1].value == "C"
     assert template.interpolations[1].expression == "unit"
     assert template.interpolations[1].conversion == "s"
     assert template.interpolations[1].format_spec == ""
+
+
+def test_conversion_then_format():
+    summary, temp = "hot", 22.43
+    assert temp and summary
+    template = t("Temperature is {summary!s}, around {temp:.1f} degrees")
+    assert template.strings == ("Temperature is ", ", around ", " degrees")
+    assert len(template.interpolations) == 2
+    assert template.interpolations[0].value == "hot"
+    assert template.interpolations[0].expression == "summary"
+    assert template.interpolations[0].conversion == "s"
+    assert template.interpolations[0].format_spec == ""
+    assert template.interpolations[1].value == 22.43
+    assert template.interpolations[1].expression == "temp"
+    assert template.interpolations[1].conversion is None
+    assert template.interpolations[1].format_spec == ".1f"
 
 
 def test_complex_expression():
