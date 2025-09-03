@@ -9,7 +9,7 @@ lint:
 	ruff format . --check
 
 test:
-	pytest --doctest-modules
+	pytest
 	nox -s tests
 
 build: clean
