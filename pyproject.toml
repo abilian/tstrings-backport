@@ -1,6 +1,6 @@
 [project]
 name = "tstrings-backport"
-version = "0.1.4"
+version = "0.1.5"
 description = "Backport of t-strings (PEP 750)"
 readme = "README.md"
 authors = [
