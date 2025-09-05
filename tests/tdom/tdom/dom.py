@@ -69,7 +69,7 @@ class Comment(Node):
         super().__init__(data=data)
 
     def __str__(self):
-        return f"<!--{str(self['data'])}-->"
+        return f"<!--{self['data']!s}-->"
 
 
 class DocumentType(Node):
