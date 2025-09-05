@@ -82,6 +82,6 @@ Tests also include the tdom source code (modified for pre-3.14 syntax) and test 
 
 ## How to help
 
-This was hacked together in less than 2 hours. If you find it useful, please consider contributing fixes, improvements, or documentation!
+This was (initially) hacked together in less than 2 hours. If you find it useful, please consider contributing fixes, improvements, or documentation!
 
 Pull requests and issues are welcome.
