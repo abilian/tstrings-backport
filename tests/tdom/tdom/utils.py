@@ -1,7 +1,16 @@
 from types import GeneratorType
 
-from .dom import (_IS_MICRO_PYTHON, COMMENT, ELEMENT, FRAGMENT, Fragment, Node,
-                  Text, _appendChildren, _replaceWith)
+from .dom import (
+    _IS_MICRO_PYTHON,
+    COMMENT,
+    ELEMENT,
+    FRAGMENT,
+    Fragment,
+    Node,
+    Text,
+    _appendChildren,
+    _replaceWith,
+)
 from .dom import parse as domify
 from .parser import _instrument, _prefix
 
@@ -119,7 +128,7 @@ def _set_updates(node, updates, path):
     if type == ELEMENT or type == FRAGMENT:
         i = 0
         for child in node["children"]:
-            _set_updates(child, updates, path + [i])
+            _set_updates(child, updates, [*path, i])
             i += 1
 
     elif type == COMMENT and node["data"] == _prefix:

@@ -1,7 +1,21 @@
+"""A Backport of PEP 750 Template Strings (t-strings)."""
+
+from __future__ import annotations
+
 import re
 import sys
 from dataclasses import dataclass
-from typing import Literal, Optional, Tuple
+from itertools import zip_longest
+from typing import TYPE_CHECKING, Literal, NoReturn
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+__all__ = [
+    "Interpolation",
+    "Template",
+    "t",
+]
 
 # Regex to find and parse an f-string-like interpolation.
 # It captures:
@@ -9,7 +23,7 @@ from typing import Literal, Optional, Tuple
 # 2. An optional debug specifier (=).
 # 3. An optional conversion specifier (!r, !s, or !a).
 # 4. An optional format specifier (:...).
-INTERPOLATION_RE = re.compile(
+_INTERPOLATION_RE = re.compile(
     r"""
     \{
         # The core expression, non-greedy
@@ -18,41 +32,105 @@ INTERPOLATION_RE = re.compile(
         (?P<debug>=)?
         # Optional conversion, one of !r, !s, or !a
         (?P<conversion>![rsa])?
-        # Optional format spec, starting with a colon
-        (?P<format_spec>:.+)?
+        # Optional format spec, starting with a colon, non-greedy until }
+        (?P<format_spec>:[^}]*)?
     }
     """,
     re.VERBOSE | re.DOTALL,
 )
 
+if sys.version_info >= (3, 10):
+    dataclass_extra_args = {"slots": True}
+else:
+    dataclass_extra_args = {}
 
-@dataclass(frozen=True)
+
+@dataclass(frozen=True, eq=False, **dataclass_extra_args)
 class Interpolation:
-    """
-    Emulates the string.templatelib.Interpolation class from PEP 750.
+    """Emulates the string.templatelib.Interpolation class from PEP 750.
+
     Represents an expression inside a template string.
     """
 
     value: object
     expression: str
-    conversion: Optional[Literal["a", "r", "s"]] = None
+    conversion: Literal["a", "r", "s"] | None = None
     format_spec: str = ""
 
+    def __eq__(self, value: object) -> bool:
+        """Template and Interpolation instances compare with object identity (is)."""
+        return self is value
 
-@dataclass(frozen=True)
+    def __hash__(self) -> int:
+        """Hash based on identity."""
+        return id(self)
+
+
+@dataclass(frozen=True, eq=False, **dataclass_extra_args)
 class Template:
-    """
-    Emulates the string.templatelib.Template class from PEP 750.
+    """Emulates the string.templatelib.Template class from PEP 750.
+
     Represents a parsed t-string literal.
     """
 
-    strings: Tuple[str, ...]
-    interpolations: Tuple[Interpolation, ...]
-
-
-def t(template_string: str) -> Template:
+    strings: tuple[str, ...]
     """
-    Emulates a PEP 750 t-string literal for Python < 3.14.
+    A non-empty tuple of the string parts of the template,
+    with N+1 items, where N is the number of interpolations
+    in the template.
+    """
+    interpolations: tuple[Interpolation, ...]
+    """
+    A tuple of the interpolation parts of the template.
+    This will be an empty tuple if there are no interpolations.
+    """
+
+    @property
+    def values(self) -> tuple[object, ...]:
+        """A tuple of the `value` attributes of each Interpolation in the template.
+
+        This will be an empty tuple if there are no interpolations.
+        """
+        return tuple(interp.value for interp in self.interpolations)
+
+    def __iter__(self) -> Iterator[str | Interpolation]:
+        """Iterate over the string parts and interpolations in the template.
+
+        These may appear in any order. Empty strings will not be included.
+        """
+        for s, i in zip_longest(self.strings, self.interpolations):
+            if s:
+                yield s
+            if i:
+                yield i
+
+    def __add__(self, other: Template) -> Template:
+        """Adds two templates together."""
+        # lazy duck-typing isinstance check
+        if not hasattr(other, "strings") or not hasattr(other, "interpolations"):
+            return NotImplemented
+        *first, final = self.strings
+        other_first, *other_rest = other.strings
+        return self.__class__(
+            strings=(*first, final + other_first, *other_rest),
+            interpolations=self.interpolations + other.interpolations,
+        )
+
+    def __eq__(self, value: object) -> bool:
+        """Template and Interpolation instances compare with object identity (is)."""
+        return self is value
+
+    def __hash__(self) -> int:
+        """Hash based on identity."""
+        return id(self)
+
+    def __str__(self) -> NoReturn:
+        """Explicitly disallowed."""
+        raise TypeError("Template instances cannot be converted to strings directly.")
+
+
+def t(template_string: str, /) -> Template:
+    """Emulates a PEP 750 t-string literal for Python < 3.14.
 
     This function parses a string with f-string-like syntax and returns
     a `Template` object, correctly evaluating expressions in the caller's
@@ -64,7 +142,19 @@ def t(template_string: str) -> Template:
     Returns:
         A `Template` instance containing the parsed static strings and
         evaluated interpolations.
-    """
+
+    Example:
+        >>> temp, unit = 22.43, "C"
+        >>> template = t("Temperature: {temp:.1f} degrees {unit!s}")
+        >>> template.strings
+        ('Temperature: ', ' degrees ', '')
+        >>> len(template.interpolations)
+        2
+        >>> template.interpolations[0]
+        Interpolation(value=22.43, expression='temp', conversion=None, format_spec='.1f')
+        >>> template.interpolations[1]
+        Interpolation(value='C', expression='unit', conversion='s', format_spec='')
+    """  # noqa: E501
     # Get the execution frame of the caller to evaluate expressions in their scope.
     # sys._getframe(0) is the frame of t()
     # sys._getframe(1) is the frame of the caller of t()
@@ -76,7 +166,7 @@ def t(template_string: str) -> Template:
     interpolations = []
     last_end = 0
 
-    for match in INTERPOLATION_RE.finditer(template_string):
+    for match in _INTERPOLATION_RE.finditer(template_string):
         # Add the static string part before this interpolation
         strings.append(template_string[last_end : match.start()])
         last_end = match.end()

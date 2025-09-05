@@ -39,9 +39,9 @@ def _instrument(template, xml):
             name = _prefix
         attrs = match.group(2)
         self_closing = match.group(3)
-        return f"<{name}{re.sub(_attributes, _as_attribute, attrs).rstrip()}{
+        return f"""<{name}{re.sub(_attributes, _as_attribute, attrs).rstrip()}{
             _as_closing(name, xml, self_closing)
-        }>"
+        }>"""
 
     def point():
         nonlocal i
