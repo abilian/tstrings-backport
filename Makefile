@@ -26,8 +26,5 @@ build: clean
 clean:
 	rm -rf .pytest_cache .ruff_cache dist build __pycache__ .mypy_cache .coverage htmlcov .coverage.* *.egg-info
 
-build: clean
-	uv build
-
 publish: build
 	uv publish 
