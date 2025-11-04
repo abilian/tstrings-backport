@@ -6,7 +6,7 @@ import re
 import sys
 from dataclasses import dataclass
 from itertools import zip_longest
-from typing import TYPE_CHECKING, Literal, NoReturn
+from typing import TYPE_CHECKING, Literal, NoReturn, Union
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -42,7 +42,23 @@ _INTERPOLATION_RE = re.compile(
 if sys.version_info >= (3, 10):
     dataclass_extra_args = {"slots": True}
 else:
-    dataclass_extra_args = {}
+    dataclass_extra_args: dict[str, bool] = {}
+
+Conversion = Union[Literal["s", "r", "a"], None]
+
+if TYPE_CHECKING:
+    _STR_TO_CONVERSION: dict[str, Conversion] = {"s": "s", "r": "r", "a": "a"}
+
+    def _str_to_conversion(conv_char: str) -> Conversion:
+        try:
+            return _STR_TO_CONVERSION[conv_char]
+        except KeyError:
+            raise SyntaxError(f"t-string: invalid-conversion character {conv_char!r}")
+
+else:
+
+    def _str_to_conversion(conv_char: str) -> Conversion:
+        return conv_char
 
 
 @dataclass(frozen=True, eq=False, **dataclass_extra_args)
@@ -54,7 +70,7 @@ class Interpolation:
 
     value: object
     expression: str
-    conversion: Literal["a", "r", "s"] | None = None
+    conversion: Conversion = None
     format_spec: str = ""
 
     def __eq__(self, value: object) -> bool:
@@ -93,7 +109,7 @@ class Template:
         """
         return tuple(interp.value for interp in self.interpolations)
 
-    def __iter__(self) -> Iterator[str | Interpolation]:
+    def __iter__(self) -> Iterator[Union[str, Interpolation]]:
         """Iterate over the string parts and interpolations in the template.
 
         These may appear in any order. Empty strings will not be included.
@@ -207,10 +223,13 @@ def t(template_string: str, /) -> Template:
                 raise SyntaxError("f-string: cannot specify both conversion and '='")
 
             # If a format spec is present, conversion becomes 's'. Otherwise, 'r'.
-            conv_char = "s" if groups["format_spec"] else "r"
+            conversion: Conversion = "s" if groups["format_spec"] else "r"
             expression_to_eval = expr_for_eval
         else:
-            conv_char = groups["conversion"][1] if groups["conversion"] else None
+            if groups["conversion"]:
+                conversion = _str_to_conversion(groups["conversion"][1])
+            else:
+                conversion = None
             expression_to_eval = groups["expression"]
 
         fmt_spec = groups["format_spec"][1:] if groups["format_spec"] else ""
@@ -232,7 +251,7 @@ def t(template_string: str, /) -> Template:
             Interpolation(
                 value=value,
                 expression=expression_to_eval,
-                conversion=conv_char,
+                conversion=conversion,
                 format_spec=fmt_spec,
             )
         )
