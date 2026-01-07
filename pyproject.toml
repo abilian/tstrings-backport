@@ -25,8 +25,11 @@ module-root = "src"
 [dependency-groups]
 dev = [
     "coverage>=7.10.2",
+    "mypy>=1.19.1",
+    "pyrefly>=0.47.0",
     "pytest>=8.4.1",
     "ruff>=0.12.7",
+    "ty>=0.0.9",
 ]
 
 [tool.pytest.ini_options]
