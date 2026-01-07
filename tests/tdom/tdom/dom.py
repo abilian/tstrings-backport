@@ -281,7 +281,7 @@ else:
 
     class Unsafe(str):
         def __new__(cls, value, *args, **kwargs):
-            return super(Unsafe, cls).__new__(cls, value)
+            return super(Unsafe, cls).__new__(cls, value)  # type: ignore[invalid-super-argument]
 
     class DOMParser(HTMLParser):
         def __init__(self, xml=False):
@@ -328,8 +328,8 @@ else:
             elif not (data.startswith("#") and data.endswith("#")):
                 _append(self.node, Comment(data))
 
-        def handle_decl(self, data):
-            _append(self.node, DocumentType(data))
+        def handle_decl(self, decl: str) -> None:
+            _append(self.node, DocumentType(decl))
 
         def unknown_decl(self, data):
             raise Exception(f"Unknown declaration: {data}")

@@ -272,30 +272,30 @@ def test_interpolation_ordering_errors():
     i1 = Interpolation("value", "expr")
     i2 = Interpolation("value", "expr")
     with pytest.raises(TypeError):
-        i1 < i2
+        i1 < i2  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        i1 <= i2
+        i1 <= i2  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        i1 > i2
+        i1 > i2  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        i1 >= i2
+        i1 >= i2  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        i1 < 5
+        i1 < 5  # type: ignore[unsupported-operator]
 
 
 def test_template_ordering_errors():
     t1 = t("value")
     t2 = t("value")
     with pytest.raises(TypeError):
-        t1 < t2
+        t1 < t2  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        t1 <= t2
+        t1 <= t2  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        t1 > t2
+        t1 > t2  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        t1 >= t2
+        t1 >= t2  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        t1 < 5
+        t1 < 5  # type: ignore[unsupported-operator]
 
 
 def test_add():
@@ -319,9 +319,9 @@ def test_add_empty():
 def test_add_not_supported():
     template = t("content")
     with pytest.raises(TypeError):
-        template + "not a template"
+        template + "not a template"  # type: ignore[unsupported-operator]
     with pytest.raises(TypeError):
-        template + Interpolation(5, "expr")
+        template + Interpolation(5, "expr")  # type: ignore[unsupported-operator]
 
 
 @pytest.mark.skipif(

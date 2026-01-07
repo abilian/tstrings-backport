@@ -6,7 +6,7 @@ import re
 import sys
 from dataclasses import dataclass
 from itertools import zip_longest
-from typing import TYPE_CHECKING, Literal, NoReturn
+from typing import TYPE_CHECKING, Literal, NoReturn, cast
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -207,10 +207,16 @@ def t(template_string: str, /) -> Template:
                 raise SyntaxError("f-string: cannot specify both conversion and '='")
 
             # If a format spec is present, conversion becomes 's'. Otherwise, 'r'.
-            conv_char = "s" if groups["format_spec"] else "r"
+            conv_char: Literal["a", "r", "s"] | None = (
+                "s" if groups["format_spec"] else "r"
+            )
             expression_to_eval = expr_for_eval
         else:
-            conv_char = groups["conversion"][1] if groups["conversion"] else None
+            conv_char = (
+                cast(Literal["a", "r", "s"], groups["conversion"][1])
+                if groups["conversion"]
+                else None
+            )
             expression_to_eval = groups["expression"]
 
         fmt_spec = groups["format_spec"][1:] if groups["format_spec"] else ""

@@ -49,7 +49,7 @@ def test_click_handler():
     """Bind a Python function to an element event handler."""
 
     def on_click(event):
-        import js
+        import js  # type: ignore[unresolved-import]
 
         js.alert(event.type)
 
@@ -75,7 +75,7 @@ def test_dev_comments():
     assert str(result) == "<!--#1--><!--3#-->"
 
 
-@skip
+@skip("svg helper not implemented")
 def test_svg():
     """preseved XML/SVG self closing nature."""
     result = html(
@@ -153,7 +153,7 @@ def test_component_without_children():
     assert '<div a="1" b="2"></div>' in str(result)
 
 
-@skip
+@skip("list rendering not implemented")
 def test_lists_within_layout():
     """A template in a template."""
 
