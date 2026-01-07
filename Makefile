@@ -1,14 +1,21 @@
 .PHONY: all test build format check lint clean
 
-all: check test
+all:
+	ruff check .
+	@make test
+	@make check
 
 check: lint
 
 lint:
 	ruff check .
 	ruff format . --check
+	ty check src
+	pyrefly check src
+	mypy src
 
 format:
+	ruff format .
 	ruff check . --fix
 	ruff format .
 
@@ -27,4 +34,4 @@ clean:
 	rm -rf .pytest_cache .ruff_cache dist build __pycache__ .mypy_cache .coverage htmlcov .coverage.* *.egg-info
 
 publish: build
-	uv publish 
+	uv publish
