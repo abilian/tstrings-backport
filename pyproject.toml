@@ -27,8 +27,10 @@ dev = [
     "coverage>=7.10.2",
     "mypy>=1.19.1",
     "nox>=2025.11.12",
+    "pre-commit>=4.3.0",
     "pyrefly>=0.47.0",
     "pytest>=8.4.1",
+    "pytest-cov>=7.0.0",
     "ruff>=0.12.7",
     "ty>=0.0.9",
 ]

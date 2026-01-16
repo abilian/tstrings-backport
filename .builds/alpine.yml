@@ -1,0 +1,31 @@
+image: alpine/latest
+packages:
+  - uv
+  - gcc
+  - python3-dev
+
+secrets:
+  - b88a4c2c-944c-42a6-9fbb-7483049c458a
+
+sources:
+  - git@git.sr.ht:~sfermigier/tstrings-backport
+
+tasks:
+  - install: |
+      cd tstrings-backport
+      uv sync
+  - test: |
+      cd tstrings-backport
+      uv run pytest -q --tb=short
+  - lint: |
+      cd tstrings-backport
+      uv run ruff check
+      uv run ty check src
+  - nox: |
+      cd tstrings-backport
+      uvx nox
+
+triggers:
+  - action: email
+    condition: failure
+    to: sf@fermigier.com
