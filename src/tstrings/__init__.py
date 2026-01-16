@@ -42,7 +42,7 @@ _INTERPOLATION_RE = re.compile(
 if sys.version_info >= (3, 10):
     dataclass_extra_args = {"slots": True}
 else:
-    dataclass_extra_args = {}
+    dataclass_extra_args: dict[str, bool] = {}
 
 
 @dataclass(frozen=True, eq=False, **dataclass_extra_args)
