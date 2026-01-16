@@ -2,41 +2,49 @@ import sys
 
 import pytest
 
-from tstrings import Interpolation, t
+from tstrings import Interpolation, Template, t
+
+
+def assert_interpolations_equal(actual: Interpolation, expected: Interpolation) -> None:
+    """Interpolation.__eq__ uses identity, so this compares content."""
+    assert actual.value == expected.value
+    assert actual.expression == expected.expression
+    assert actual.conversion == expected.conversion
+    assert actual.format_spec == expected.format_spec
+
+
+def assert_templates_equal(actual: Template, expected: Template) -> None:
+    """Template.__eq__ uses identity, so this compares content."""
+    assert actual.strings == expected.strings
+    assert len(actual.interpolations) == len(expected.interpolations)
+    for a_interp, e_interp in zip(actual.interpolations, expected.interpolations):
+        assert_interpolations_equal(a_interp, e_interp)
 
 
 def test_simple_string():
     """Tests a string with no interpolations."""
-    template = t("Hello, world!")
-    assert template.strings == ("Hello, world!",)
-    assert template.interpolations == ()
-    assert template.values == ()
-    assert tuple(template) == ("Hello, world!",)
+    actual = t("Hello, world!")
+    expected = Template(strings=("Hello, world!",), interpolations=())
+    assert_templates_equal(actual, expected)
 
 
 def test_empty_string():
     """Tests an empty string."""
-    template = t("")
-    assert template.strings == ("",)
-    assert template.interpolations == ()
-    assert template.values == ()
-    assert tuple(template) == ()
+    actual = t("")
+    expected = Template(strings=("",), interpolations=())
+    assert_templates_equal(actual, expected)
 
 
 def test_simple_interpolation():
     """Tests a basic variable interpolation."""
     name = "World"
     assert name
-    template = t("Hello, {name}!")
-    assert template.strings == ("Hello, ", "!")
-    assert len(template.interpolations) == 1
-    interp = template.interpolations[0]
-    assert interp.value == "World"
-    assert interp.expression == "name"
-    assert interp.conversion is None
-    assert interp.format_spec == ""
-    assert template.values == ("World",)
-    assert tuple(template) == ("Hello, ", interp, "!")
+    actual = t("Hello, {name}!")
+    expected = Template(
+        strings=("Hello, ", "!"),
+        interpolations=(Interpolation(value="World", expression="name"),),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_leading_and_trailing_interpolations():
@@ -56,13 +64,15 @@ def test_adjacent_interpolations():
     """Tests two interpolations with no text between them."""
     first, second = "one", "two"
     assert first and second
-    template = t("{first}{second}")
-    assert template.strings == ("", "", "")
-    assert len(template.interpolations) == 2
-    assert template.interpolations[0].value == "one"
-    assert template.interpolations[1].value == "two"
-    assert template.values == ("one", "two")
-    assert tuple(template) == template.interpolations
+    actual = t("{first}{second}")
+    expected = Template(
+        strings=("", "", ""),
+        interpolations=(
+            Interpolation(value="one", expression="first"),
+            Interpolation(value="two", expression="second"),
+        ),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_conversion_specifiers():
@@ -81,43 +91,42 @@ def test_format_specifier():
     """Tests a format specification."""
     num = 123.456
     assert num
-    template = t("{num:.2f}")
-    interp = template.interpolations[0]
-    assert interp.value == 123.456
-    assert interp.format_spec == ".2f"
-    assert interp.conversion is None
+    actual = t("{num:.2f}")
+    expected = Template(
+        strings=("", ""),
+        interpolations=(
+            Interpolation(value=123.456, expression="num", format_spec=".2f"),
+        ),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_format_then_conversion():
     temp, unit = 22.43, "C"
     assert temp and unit
-    template = t("Temperature: {temp:.1f} degrees {unit!s}")
-    assert template.strings == ("Temperature: ", " degrees ", "")
-    assert len(template.interpolations) == 2
-    assert template.interpolations[0].value == 22.43
-    assert template.interpolations[0].expression == "temp"
-    assert template.interpolations[0].conversion is None
-    assert template.interpolations[0].format_spec == ".1f"
-    assert template.interpolations[1].value == "C"
-    assert template.interpolations[1].expression == "unit"
-    assert template.interpolations[1].conversion == "s"
-    assert template.interpolations[1].format_spec == ""
+    actual = t("Temperature: {temp:.1f} degrees {unit!s}")
+    expected = Template(
+        strings=("Temperature: ", " degrees ", ""),
+        interpolations=(
+            Interpolation(value=22.43, expression="temp", format_spec=".1f"),
+            Interpolation(value="C", expression="unit", conversion="s"),
+        ),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_conversion_then_format():
     summary, temp = "hot", 22.43
     assert temp and summary
-    template = t("Temperature is {summary!s}, around {temp:.1f} degrees")
-    assert template.strings == ("Temperature is ", ", around ", " degrees")
-    assert len(template.interpolations) == 2
-    assert template.interpolations[0].value == "hot"
-    assert template.interpolations[0].expression == "summary"
-    assert template.interpolations[0].conversion == "s"
-    assert template.interpolations[0].format_spec == ""
-    assert template.interpolations[1].value == 22.43
-    assert template.interpolations[1].expression == "temp"
-    assert template.interpolations[1].conversion is None
-    assert template.interpolations[1].format_spec == ".1f"
+    actual = t("Temperature is {summary!s}, around {temp:.1f} degrees")
+    expected = Template(
+        strings=("Temperature is ", ", around ", " degrees"),
+        interpolations=(
+            Interpolation(value="hot", expression="summary", conversion="s"),
+            Interpolation(value=22.43, expression="temp", format_spec=".1f"),
+        ),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_complex_expression():
@@ -126,9 +135,14 @@ def test_complex_expression():
     def get_val():
         return "complex"
 
-    template = t("Value is {get_val().upper()}")
-    assert template.interpolations[0].value == "COMPLEX"
-    assert template.interpolations[0].expression == "get_val().upper()"
+    actual = t("Value is {get_val().upper()}")
+    expected = Template(
+        strings=("Value is ", ""),
+        interpolations=(
+            Interpolation(value="COMPLEX", expression="get_val().upper()"),
+        ),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_multiline_expression():
@@ -144,47 +158,52 @@ def test_multiline_expression():
 def test_raw_string():
     trade = "shrubberies"
     assert trade
-    template = t(r'Did you say "{trade}"?\n')
-    assert template.strings[0] == r'Did you say "'
-    assert template.strings[1] == r'"?\n'
+    actual = t(r'Did you say "{trade}"?\n')
+    expected = Template(
+        strings=(r'Did you say "', r'"?\n'),
+        interpolations=(Interpolation(value="shrubberies", expression="trade"),),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_debug_specifier_simple():
     """Tests the debug specifier: {var=}."""
     var = 42
     assert var
-    template = t("{var=}")
-    assert template.strings == ("var=", "")
-    assert len(template.interpolations) == 1
-    interp = template.interpolations[0]
-    assert interp.value == 42
-    assert interp.expression == "var"
-    assert interp.conversion == "r"  # Should default to !r
-    assert interp.format_spec == ""
+    actual = t("{var=}")
+    expected = Template(
+        strings=("var=", ""),
+        interpolations=(Interpolation(value=42, expression="var", conversion="r"),),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_debug_specifier_with_text_and_whitespace():
     """Tests the debug specifier with surrounding text and whitespace."""
     val = "test"
     assert val
-    template = t("The value is {val=}.")
-    assert template.strings == ("The value is val=", ".")
-    interp = template.interpolations[0]
-    assert interp.expression == "val"
-    assert interp.conversion == "r"
+    actual = t("The value is {val=}.")
+    expected = Template(
+        strings=("The value is val=", "."),
+        interpolations=(Interpolation(value="test", expression="val", conversion="r"),),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_debug_specifier_with_format():
     """Tests the debug specifier with a format spec: {var=:.2f}."""
     num = 3.14159
     assert num
-    template = t("{num=:.2f}")
-    assert template.strings == ("num=", "")
-    interp = template.interpolations[0]
-    assert interp.value == 3.14159
-    assert interp.expression == "num"
-    assert interp.conversion == "s"  # Should switch to !s
-    assert interp.format_spec == ".2f"
+    actual = t("{num=:.2f}")
+    expected = Template(
+        strings=("num=", ""),
+        interpolations=(
+            Interpolation(
+                value=num, expression="num", conversion="s", format_spec=".2f"
+            ),
+        ),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_debug_with_conversion_is_error():
@@ -303,17 +322,23 @@ def test_add():
     assert a and b
     t1 = t("leading {a} trailing")
     t2 = t(" and more {b} end")
-    t3 = t1 + t2
-    assert t3.strings == ("leading ", " trailing and more ", " end")
-    assert t3.interpolations == (t1.interpolations[0], t2.interpolations[0])
+    actual = t1 + t2
+    expected = Template(
+        strings=("leading ", " trailing and more ", " end"),
+        interpolations=(
+            Interpolation(value="A", expression="a"),
+            Interpolation(value="B", expression="b"),
+        ),
+    )
+    assert_templates_equal(actual, expected)
 
 
 def test_add_empty():
     t1 = t("")
     t2 = t("")
-    t3 = t1 + t2
-    assert t3.strings == ("",)
-    assert len(t3.interpolations) == 0
+    actual = t1 + t2
+    expected = Template(strings=("",), interpolations=())
+    assert_templates_equal(actual, expected)
 
 
 def test_add_not_supported():
