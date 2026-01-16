@@ -26,6 +26,7 @@ module-root = "src"
 dev = [
     "coverage>=7.10.2",
     "mypy>=1.19.1",
+    "nox>=2025.11.12",
     "pyrefly>=0.47.0",
     "pytest>=8.4.1",
     "ruff>=0.12.7",
