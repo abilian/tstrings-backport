@@ -87,6 +87,18 @@ def test_conversion_specifiers():
     assert template_a.interpolations[0].conversion == "a"
 
 
+def test_bogus_conversion():
+    """Tests !z errors"""
+    value = "Test"
+    assert value
+    with pytest.raises(SyntaxError) as exc_info:
+        t("hello {value!z}")
+    expected_msg = (
+        "Failed to evaluate expression 'value!z': invalid syntax (<string>, line 1)"
+    )
+    assert str(exc_info.value) == expected_msg
+
+
 def test_format_specifier():
     """Tests a format specification."""
     num = 123.456
