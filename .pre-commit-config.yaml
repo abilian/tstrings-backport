@@ -1,0 +1,33 @@
+repos:
+
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: 'v0.14.13'
+  hooks:
+    - id: ruff
+    - id: ruff-format
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+    # Generic
+    - id: check-added-large-files
+    - id: fix-byte-order-marker
+    - id: check-case-conflict
+    - id: check-executables-have-shebangs
+    - id: check-merge-conflict
+    - id: check-symlinks
+    # Basic syntax checks
+    - id: check-ast
+    - id: check-json
+    - id: check-toml
+    - id: check-xml
+    - id: check-yaml
+    # Security
+    - id: detect-private-key
+    # Whitespace
+    - id: end-of-file-fixer
+    - id: mixed-line-ending
+    - id: trailing-whitespace
+    # Misc Python
+    - id: debug-statements
+    - id: check-docstring-first
